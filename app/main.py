@@ -7,14 +7,14 @@ import folium
 
 app = FastAPI()
 
-# Obtener el directorio actual del script
-current_dir = os.path.dirname(os.path.abspath(__file__))
+# Obtener el directorio actual de la aplicación (carpeta /app)
+base_dir = os.path.dirname(os.path.abspath(__file__))
 
-# Verificar y crear el directorio 'static' si no existe
-static_dir = os.path.join(current_dir, "static")
+# Verificar y crear el directorio 'static' dentro de /app
+static_dir = os.path.join(base_dir, "static")
 os.makedirs(static_dir, exist_ok=True)
 
-# Montar la carpeta de archivos estáticos
+# Montar la carpeta de archivos estáticos en FastAPI
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 # Función para verificar la existencia de zona_inundable.geojson
@@ -23,7 +23,7 @@ def check_and_generate_geojson():
     if not os.path.exists(geojson_path):
         print("GeoJSON file not found. Generating zona_inundable.geojson...")
         # Ruta al script convert_shapefile_to_geojson.py
-        script_path = os.path.join(current_dir, "convert_shapefile_to_geojson.py")
+        script_path = os.path.join(base_dir, "convert_shapefile_to_geojson.py")
         # Ejecutar el script para generar el archivo GeoJSON
         subprocess.run(["python3", script_path], check=True)
         print("GeoJSON file generated successfully.")
@@ -37,7 +37,7 @@ async def startup_event():
 
 @app.get("/", response_class=HTMLResponse)
 async def read_index():
-    index_path = os.path.join(current_dir, "templates", "index.html")
+    index_path = os.path.join(base_dir, "templates", "index.html")
     with open(index_path, "r", encoding="utf-8") as f:
         return HTMLResponse(content=f.read())
 
@@ -58,7 +58,7 @@ async def generate_map():
         }
     ).add_to(m)
 
-    # Guardar el mapa en un archivo HTML en la carpeta static
+    # Guardar el mapa en un archivo HTML en la carpeta static dentro de /app
     map_html = os.path.join(static_dir, "mapa_inundaciones.html")
     m.save(map_html)
 
