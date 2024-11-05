@@ -40,23 +40,39 @@ def generate_map_file():
     map_html_path = os.path.join(static_dir, "mapa_inundaciones.html")
     if not os.path.exists(map_html_path):
         print("Map HTML file not found. Generating mapa_inundaciones.html...")
+        
+        # Crear el mapa base
+        print("Creating base map...")
         m = folium.Map(location=[40.0, -3.7], zoom_start=6)
+        print("Base map created.")
 
-        # Cargar y añadir la capa GeoJSON de zonas inundables
+        # Añadir la capa GeoJSON de zonas inundables
         geojson_path = os.path.join(static_dir, "zona_inundable.geojson")
-        folium.GeoJson(
-            geojson_path,
-            name="Zonas Inundables",
-            style_function=lambda x: {
-                "color": "blue",
-                "weight": 2,
-                "fillOpacity": 0.5
-            }
-        ).add_to(m)
+        if os.path.exists(geojson_path):
+            print("Loading GeoJSON layer...")
+            try:
+                folium.GeoJson(
+                    geojson_path,
+                    name="Zonas Inundables",
+                    style_function=lambda x: {
+                        "color": "blue",
+                        "weight": 2,
+                        "fillOpacity": 0.5
+                    }
+                ).add_to(m)
+                print("GeoJSON layer added to the map.")
+            except Exception as e:
+                print(f"Error loading GeoJSON layer: {e}")
+        else:
+            print(f"GeoJSON file not found at {geojson_path}")
 
-        # Guardar el mapa en un archivo HTML en la carpeta static dentro de /app
-        m.save(map_html_path)
-        print("Map HTML file generated successfully.")
+        # Guardar el mapa en un archivo HTML
+        try:
+            print("Saving the map to HTML...")
+            m.save(map_html_path)
+            print(f"Map HTML file saved at {map_html_path}")
+        except Exception as e:
+            print(f"Error saving the map to HTML: {e}")
     else:
         print("Map HTML file already exists.")
 
