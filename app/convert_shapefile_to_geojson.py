@@ -14,7 +14,7 @@ gdf = gpd.read_file(shapefile_path)
 
 # Aplicar simplificación para reducir la precisión de las coordenadas
 print("Simplifying geometries to reduce file size...")
-tolerance = 0.0001  # Ajusta el nivel de tolerancia según tus necesidades
+tolerance = 0.001  # Ajusta el nivel de tolerancia según tus necesidades
 gdf['geometry'] = gdf['geometry'].simplify(tolerance, preserve_topology=True)
 print("Geometries simplified.")
 

@@ -53,52 +53,13 @@ def validate_geojson_data(geojson_path):
 
 # Función para generar el archivo del mapa si no existe
 def generate_map_file():
-    map_html_path = os.path.join(static_dir, "mapa_inundaciones.html")
-    geojson_path = os.path.join(static_dir, "zona_inundable.geojson")
-
-    if not os.path.exists(map_html_path):
-        print("Map HTML file not found. Generating mapa_inundaciones.html...")
-
-        # Crear el mapa base
-        print("Creating base map...")
-        m = folium.Map(location=[40.0, -3.7], zoom_start=6)
-        print("Base map created.")
-
-        # Validar datos en el GeoJSON antes de agregarlo
-        if os.path.exists(geojson_path) and validate_geojson_data(geojson_path):
-            print("Loading GeoJSON layer...")
-            try:
-                folium.GeoJson(
-                    geojson_path,
-                    name="Zonas Inundables",
-                    style_function=lambda x: {
-                        "color": "blue",
-                        "weight": 2,
-                        "fillOpacity": 0.5
-                    }
-                ).add_to(m)
-                print("GeoJSON layer added to the map.")
-            except Exception as e:
-                print(f"Error loading GeoJSON layer: {e}")
-        else:
-            print(f"GeoJSON file is either missing or invalid at {geojson_path}. Aborting map generation.")
-            return
-
-        # Guardar el mapa en un archivo HTML con mensajes de progreso
-        try:
-            print("Saving the map to HTML...")
-            m.save(map_html_path)
-            print(f"Map HTML file saved at {map_html_path}")
-            
-            # Verificar si el archivo HTML no está vacío
-            if os.path.getsize(map_html_path) > 0:
-                print("Map HTML file generated successfully and is not empty.")
-            else:
-                print("Warning: Map HTML file is empty after saving.")
-        except Exception as e:
-            print(f"Error saving the map to HTML: {e}")
-    else:
-        print("Map HTML file already exists.")
+    print("Creating and saving a simple map without GeoJSON...")
+    m = folium.Map(location=[40.0, -3.7], zoom_start=6)
+    try:
+        m.save("mapa_inundaciones.html")
+        print("Simple map HTML file saved successfully as mapa_inundaciones.html.")
+    except Exception as e:
+        print(f"Error saving simple map: {e}")
 
 # Llamar a la función al iniciar la aplicación
 @app.on_event("startup")
