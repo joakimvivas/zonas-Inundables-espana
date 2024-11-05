@@ -6,6 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi import Request
 import folium
+import geopandas as gpd
 
 app = FastAPI()
 
@@ -35,9 +36,26 @@ def check_and_generate_geojson():
     else:
         print("GeoJSON file already exists.")
 
+# Función para validar que el archivo GeoJSON contiene datos
+def validate_geojson_data(geojson_path):
+    print("Validating GeoJSON data...")
+    try:
+        gdf = gpd.read_file(geojson_path)
+        if gdf.empty:
+            print("Error: GeoJSON file is empty.")
+            return False
+        else:
+            print(f"GeoJSON data loaded successfully with {len(gdf)} entries.")
+            return True
+    except Exception as e:
+        print(f"Error validating GeoJSON data: {e}")
+        return False
+
 # Función para generar el archivo del mapa si no existe
 def generate_map_file():
     map_html_path = os.path.join(static_dir, "mapa_inundaciones.html")
+    geojson_path = os.path.join(static_dir, "zona_inundable.geojson")
+
     if not os.path.exists(map_html_path):
         print("Map HTML file not found. Generating mapa_inundaciones.html...")
 
@@ -46,9 +64,8 @@ def generate_map_file():
         m = folium.Map(location=[40.0, -3.7], zoom_start=6)
         print("Base map created.")
 
-        # Añadir la capa GeoJSON de zonas inundables
-        geojson_path = os.path.join(static_dir, "zona_inundable.geojson")
-        if os.path.exists(geojson_path):
+        # Validar datos en el GeoJSON antes de agregarlo
+        if os.path.exists(geojson_path) and validate_geojson_data(geojson_path):
             print("Loading GeoJSON layer...")
             try:
                 folium.GeoJson(
@@ -64,13 +81,20 @@ def generate_map_file():
             except Exception as e:
                 print(f"Error loading GeoJSON layer: {e}")
         else:
-            print(f"GeoJSON file not found at {geojson_path}")
+            print(f"GeoJSON file is either missing or invalid at {geojson_path}. Aborting map generation.")
+            return
 
-        # Guardar el mapa en un archivo HTML
+        # Guardar el mapa en un archivo HTML con mensajes de progreso
         try:
             print("Saving the map to HTML...")
             m.save(map_html_path)
             print(f"Map HTML file saved at {map_html_path}")
+            
+            # Verificar si el archivo HTML no está vacío
+            if os.path.getsize(map_html_path) > 0:
+                print("Map HTML file generated successfully and is not empty.")
+            else:
+                print("Warning: Map HTML file is empty after saving.")
         except Exception as e:
             print(f"Error saving the map to HTML: {e}")
     else:
