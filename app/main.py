@@ -7,12 +7,16 @@ import subprocess
 
 app = FastAPI()
 
+# Verificar y crear el directorio 'static' si no existe
+static_dir = "static"
+os.makedirs(static_dir, exist_ok=True)
+
 # Montar la carpeta de archivos estáticos
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 # Función para verificar la existencia de zona_inundable.geojson
 def check_and_generate_geojson():
-    geojson_path = "static/zona_inundable.geojson"
+    geojson_path = os.path.join(static_dir, "zona_inundable.geojson")
     if not os.path.exists(geojson_path):
         print("GeoJSON file not found. Generating zona_inundable.geojson...")
         # Ejecutar el script para generar el archivo GeoJSON
@@ -37,7 +41,7 @@ async def generate_map():
     m = folium.Map(location=[40.0, -3.7], zoom_start=6)
 
     # Cargar y añadir la capa GeoJSON de zonas inundables
-    geojson_path = "static/zona_inundable.geojson"
+    geojson_path = os.path.join(static_dir, "zona_inundable.geojson")
     folium.GeoJson(
         geojson_path,
         name="Zonas Inundables",
@@ -49,7 +53,7 @@ async def generate_map():
     ).add_to(m)
 
     # Guardar el mapa en un archivo HTML en la carpeta static
-    map_html = "static/mapa_inundaciones.html"
+    map_html = os.path.join(static_dir, "mapa_inundaciones.html")
     m.save(map_html)
 
     return HTMLResponse(content="<p>Mapa generado correctamente. Accede a la página principal para visualizarlo.</p>")

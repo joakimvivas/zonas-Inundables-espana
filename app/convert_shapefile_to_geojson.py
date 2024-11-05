@@ -1,7 +1,7 @@
 import geopandas as gpd
 import os
 
-# Directorio de salida para el archivo GeoJSON
+# Definir el directorio de salida
 output_dir = "static"
 os.makedirs(output_dir, exist_ok=True)  # Crear el directorio si no existe
 
