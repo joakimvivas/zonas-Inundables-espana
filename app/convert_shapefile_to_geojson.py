@@ -1,10 +1,15 @@
-# Contenido del script convert_shapefile_to_geojson.py
 import geopandas as gpd
+import os
+
+# Directorio de salida para el archivo GeoJSON
+output_dir = "static"
+os.makedirs(output_dir, exist_ok=True)  # Crear el directorio si no existe
 
 # Cargar el archivo ShapeFile
 shapefile_path = "zona_inundable.shp"
 gdf = gpd.read_file(shapefile_path)
 
-# Convertir a GeoJSON
-geojson_path = "zona_inundable.geojson"
+# Convertir a GeoJSON y guardar en el directorio static
+geojson_path = os.path.join(output_dir, "zona_inundable.geojson")
 gdf.to_file(geojson_path, driver="GeoJSON")
+print(f"GeoJSON file saved at {geojson_path}")
