@@ -40,7 +40,7 @@ def generate_map_file():
     map_html_path = os.path.join(static_dir, "mapa_inundaciones.html")
     if not os.path.exists(map_html_path):
         print("Map HTML file not found. Generating mapa_inundaciones.html...")
-        
+
         # Crear el mapa base
         print("Creating base map...")
         m = folium.Map(location=[40.0, -3.7], zoom_start=6)
