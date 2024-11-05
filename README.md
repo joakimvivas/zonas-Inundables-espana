@@ -1,6 +1,6 @@
 # Zonas Inundables
 
-Bla, bla, bla.
+The objective is to build an interactive map of the flood zones in Spain, using as a basis the Cartography and GIS offered by the [Ministry for the Ecological Transition and the Demographic Challenge of Spain](https://www.miteco.gob.es/es/cartografia-y-sig/ide/descargas/agua/zi-lamina.html) of Flood Zones associated with different return periods (10, 50 or 100 years).
 
 ## Project structure
 
