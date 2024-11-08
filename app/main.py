@@ -51,12 +51,69 @@ def validate_geojson_data(geojson_path):
         print(f"Error validating GeoJSON data: {e}")
         return False
 
-# Función para generar el archivo del mapa si no existe
+# Función para generar el archivo del mapa completo si no existe
 def generate_map_file():
+    map_html_path = os.path.join(static_dir, "mapa_inundaciones.html")
+    geojson_path = os.path.join(static_dir, "zona_inundable.geojson")
+
+    if not os.path.exists(map_html_path):
+        print("Map HTML file not found. Attempting to generate mapa_inundaciones.html...")
+
+        # Crear el mapa base
+        print("Creating base map...")
+        m = folium.Map(location=[40.0, -3.7], zoom_start=6)
+        print("Base map created.")
+
+        # Intentar agregar la capa GeoJSON si el archivo es válido y no está vacío
+        if os.path.exists(geojson_path) and validate_geojson_data(geojson_path):
+            print("Loading GeoJSON layer...")
+            try:
+                folium.GeoJson(
+                    geojson_path,
+                    name="Zonas Inundables",
+                    style_function=lambda x: {
+                        "color": "blue",
+                        "weight": 2,
+                        "fillOpacity": 0.5
+                    }
+                ).add_to(m)
+                print("GeoJSON layer added to the map.")
+            except Exception as e:
+                print(f"Error loading GeoJSON layer: {e}")
+                print("Generating simple map without GeoJSON layer.")
+                generate_map_file_simple()
+                return
+        else:
+            print("GeoJSON file is either missing or invalid. Generating simple map without GeoJSON.")
+            generate_map_file_simple()
+            return
+
+        # Guardar el mapa completo en HTML
+        try:
+            print("Saving the complete map to HTML...")
+            m.save(map_html_path)
+            print(f"Map HTML file saved at {map_html_path}")
+            
+            # Verificar si el archivo HTML no está vacío
+            if os.path.getsize(map_html_path) > 0:
+                print("Map HTML file generated successfully and is not empty.")
+            else:
+                print("Warning: Map HTML file is empty after saving. Generating simple map as fallback.")
+                generate_map_file_simple()
+        except Exception as e:
+            print(f"Error saving the complete map to HTML: {e}")
+            print("Generating simple map without GeoJSON layer as fallback.")
+            generate_map_file_simple()
+    else:
+        print("Map HTML file already exists.")
+
+# Función para generar un mapa simple sin la capa GeoJSON
+def generate_map_file_simple():
     print("Creating and saving a simple map without GeoJSON...")
+    map_html_path = os.path.join(static_dir, "mapa_inundaciones.html")
     m = folium.Map(location=[40.0, -3.7], zoom_start=6)
     try:
-        m.save("mapa_inundaciones.html")
+        m.save(map_html_path)
         print("Simple map HTML file saved successfully as mapa_inundaciones.html.")
     except Exception as e:
         print(f"Error saving simple map: {e}")
